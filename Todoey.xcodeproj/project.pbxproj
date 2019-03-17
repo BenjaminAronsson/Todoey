@@ -81,7 +81,6 @@
 			children = (
 				D7A3E597223E581C00399284 /* LaunchScreen.storyboard */,
 				D7A3E592223E581B00399284 /* Main.storyboard */,
-				D7D1B965223EEEBA00529243 /* CategoryViewController.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -90,6 +89,7 @@
 			isa = PBXGroup;
 			children = (
 				D7A3E590223E581B00399284 /* TodolistViewController.swift */,
+				D7D1B965223EEEBA00529243 /* CategoryViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
