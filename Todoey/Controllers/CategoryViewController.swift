@@ -13,7 +13,7 @@ class CategoryViewController: UITableViewController {
     
     let realm = try! Realm()
     
-    var categories: Results<Category>!
+    var categories: Results<Category>?
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
 
@@ -28,10 +28,7 @@ class CategoryViewController: UITableViewController {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "categoryCell", for: indexPath)
         
-        let category = categories[indexPath.row]
-        
-        cell.textLabel?.text = category.name
-        
+        cell.textLabel?.text = categories?[indexPath.row].name ?? "No categories added yet"
         //cell.accessoryType = category.done ? .checkmark : .none
         
         
@@ -43,7 +40,7 @@ class CategoryViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return categories.count
+        return categories?.count ?? 1
     }
     
     //MARK: - tableview delegate
@@ -56,7 +53,7 @@ class CategoryViewController: UITableViewController {
         let destinationVC = segue.destination as! TodolistViewController
         
         if let indexPath = tableView.indexPathForSelectedRow{
-            destinationVC.selectedCategory = categories[indexPath.row]
+            destinationVC.selectedCategory = categories?[indexPath.row]
         }
     }
     

@@ -7,29 +7,27 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
 
 class TodolistViewController: UITableViewController {
     
-    var itemArray = [Item]()
+    var todoItems : Results<Item>?
+    
+    let realm = try! Realm()
     
     var selectedCategory : Category? {
         didSet{
-           // loadData()
+           loadItems()
         }
     }
     
     let filePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
-    
-    
-    
-   
-
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        self.title = selectedCategory?.name ?? "Items"
     }
     
     
@@ -38,12 +36,14 @@ class TodolistViewController: UITableViewController {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
         
-        let Item = itemArray[indexPath.row]
-        
-        cell.textLabel?.text = Item.title
-        
-        cell.accessoryType = Item.done ? .checkmark : .none
-        
+        if let Item = todoItems?[indexPath.row] {
+            
+            cell.textLabel?.text = Item.title
+            
+            cell.accessoryType = Item.done ? .checkmark : .none
+        } else {
+            cell.textLabel?.text = "No items added"
+        }
         
         return cell
     }
@@ -53,17 +53,22 @@ class TodolistViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return itemArray.count
+        return todoItems?.count ?? 1
     }
     
     //MARK - tableview delegate
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        //check item in tableview
-        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
-        saveData()
-        
+        if let item = todoItems?[indexPath.row] {
+            do {
+                try realm.write {
+                    item.done = !item.done
+                }
+            } catch {
+                print("Error saving done status \(error)")
+            }
+        }
         tableView.reloadData()
         tableView.deselectRow(at: indexPath, animated: true)
     }
@@ -81,16 +86,19 @@ class TodolistViewController: UITableViewController {
             
             if (textfield.text?.count)!  > 0 {
                 
-//                let newItem = Item()
-//                newItem.done = false
-//                newItem.title = textfield.text!
-//                newItem.parentCategory = self.selectedCategory
-//                self.itemArray.append(newItem)
-//                
-//                self.saveData()
-//                self.tableView.reloadData()
+                if let currentCategory = self.selectedCategory {
+                    do {
+                        try self.realm.write {
+                            let newItem = Item()
+                            newItem.title = textfield.text!
+                            currentCategory.items.append(newItem )
+                        }
+                    } catch {
+                        print("Error saving item \(error)")
+                    }
+                }
+                self.tableView.reloadData()
             }
-            
         }
         
         alert.addAction(action)
@@ -103,39 +111,18 @@ class TodolistViewController: UITableViewController {
     }
     
     //MARK: - Save data
-    func saveData() {
-        
-        do {
-           try context.save()
-        }
-        catch {
-            print("Error encoding item array, \(error)")
-        }
-    }
-    
+   
     //MARK: - Load data
-//    func loadData(with request : NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil) {
-//
-//        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
-//
-//        if let _ = predicate {
-//            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, predicate!])
-//        }
-//        else {
-//            request.predicate = categoryPredicate
-//        }
-//
-//        do {
-//        itemArray = try context.fetch(request)
-//        } catch {
-//             print("Error retrieving item array, \(error)")
-//        }
-//        tableView.reloadData()
-//    }
-//
-//    func removeItem(index: Int) {
-//        context.delete(itemArray[index])
-//        itemArray.remove(at: index)
+    func loadItems() {
+
+       todoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
+        
+        tableView.reloadData()
+    }
+
+//    func removeItemS(index: Int) {
+//        context.delete(todoItems[index])
+//        todoItems.remove(at: index)
 //        saveData()
 //    }
 }
