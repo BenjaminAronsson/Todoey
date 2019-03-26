@@ -9,16 +9,17 @@
 import UIKit
 import RealmSwift
 
-class CategoryViewController: UITableViewController {
+class CategoryViewController: SwipeTableViewController {
     
     let realm = try! Realm()
     
     var categories: Results<Category>?
-    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    //let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        tableView.rowHeight = 80
         
         loadCategories()
     }
@@ -26,11 +27,9 @@ class CategoryViewController: UITableViewController {
     //MARK: - tableview datasource
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "categoryCell", for: indexPath)
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
         cell.textLabel?.text = categories?[indexPath.row].name ?? "No categories added yet"
-        //cell.accessoryType = category.done ? .checkmark : .none
-        
         
         return cell
     }
@@ -90,12 +89,38 @@ class CategoryViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
     }
     
+    //MARK: - delete data from swipe
+    
+    override func updateModel(at indexpath: IndexPath) {
+        if let categoreyForDeletion = self.categories?[indexpath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete(categoreyForDeletion)
+                }
+            } catch {
+                print("error deleting item")
+            }
+        }
+    }
+    
     //MARK: - Save data
     func save(category: Category) {
         
         do {
             try realm.write {
                 realm.add(category)
+            }
+        }
+        catch {
+            print("Error encoding item array, \(error)")
+        }
+    }
+    
+    func delete(category: Category) {
+        
+        do {
+            try realm.write {
+                realm.delete(category)
             }
         }
         catch {
@@ -110,10 +135,6 @@ class CategoryViewController: UITableViewController {
     
         tableView.reloadData()
     }
-
-//    func removeItem(index: Int) {
-//        context.delete(categoryArray[index])
-//        categoryArray.remove(at: index)
-//        saveData()
-//    }
 }
+
+

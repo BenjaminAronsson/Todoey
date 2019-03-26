@@ -9,7 +9,7 @@
 import UIKit
 import RealmSwift
 
-class TodolistViewController: UITableViewController {
+class TodolistViewController: SwipeTableViewController {
     
     var todoItems : Results<Item>?
     
@@ -21,8 +21,8 @@ class TodolistViewController: UITableViewController {
         }
     }
     
-    let filePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
-    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    //let filePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+    //let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,7 +34,7 @@ class TodolistViewController: UITableViewController {
     //MARK: - tableview datasource
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoItemCell", for: indexPath)
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
         if let Item = todoItems?[indexPath.row] {
             
@@ -111,8 +111,20 @@ class TodolistViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
     }
     
-    //MARK: - Save data
-   
+    //MARK: - delete data from swipe
+    
+    override func updateModel(at indexpath: IndexPath) {
+        if let itemForDeletion = self.todoItems?[indexpath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete(itemForDeletion)
+                }
+            } catch {
+                print("error deleting item")
+            }
+        }
+    }
+    
     //MARK: - Load data
     func loadItems() {
 
@@ -121,11 +133,6 @@ class TodolistViewController: UITableViewController {
         tableView.reloadData()
     }
 
-//    func removeItemS(index: Int) {
-//        context.delete(todoItems[index])
-//        todoItems.remove(at: index)
-//        saveData()
-//    }
 }
 
 
