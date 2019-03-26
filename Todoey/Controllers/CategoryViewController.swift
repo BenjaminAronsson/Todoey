@@ -27,6 +27,13 @@ class CategoryViewController: SwipeTableViewController {
         loadCategories()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        
+        if let barColour : UIColor = navigationController?.navigationBar.barTintColor {
+             // = ContrastColorOf(colour, returnFlat: true)
+        }
+    }
+    
     //MARK: - tableview datasource
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         

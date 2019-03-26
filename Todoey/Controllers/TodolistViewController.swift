@@ -21,17 +21,39 @@ class TodolistViewController: SwipeTableViewController {
            loadItems()
         }
     }
-    
-    //let filePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
-    //let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.rowHeight = 80
         
         tableView.separatorStyle = .none
+    }
+    
+    @IBOutlet weak var searchBAr: UISearchBar!
+    
+    
+    override func viewWillAppear(_ animated: Bool) {
         
-        self.title = selectedCategory?.name ?? "Items"
+        
+        guard let navbar = navigationController?.navigationBar else {
+            fatalError("Navbar error")
+        }
+        
+        if let colourHex = selectedCategory?.color {
+            if let navbarColour = UIColor(hexString: colourHex) {
+                navbar.barTintColor = navbarColour
+                navbar.tintColor = ContrastColorOf(navbarColour, returnFlat: true)
+
+                self.title = selectedCategory!.name
+                searchBAr.barTintColor = navbarColour
+                
+                if #available(iOS 11.0, *) {
+                    navbar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : ContrastColorOf(navbarColour, returnFlat: true) ]
+                } else {
+                    // Fallback on earlier versions
+                }
+            }
+            
+        }
     }
     
     
