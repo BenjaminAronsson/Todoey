@@ -27,13 +27,6 @@ class CategoryViewController: SwipeTableViewController {
         loadCategories()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        
-        if let barColour : UIColor = navigationController?.navigationBar.barTintColor {
-             // = ContrastColorOf(colour, returnFlat: true)
-        }
-    }
-    
     //MARK: - tableview datasource
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
@@ -41,8 +34,14 @@ class CategoryViewController: SwipeTableViewController {
         
         if let categorey = categories?[indexPath.row] {
         
-            cell.textLabel?.text = categorey.name 
-            cell.backgroundColor = UIColor(hexString: categorey.color) ?? UIColor.randomFlat
+            cell.textLabel?.text = categorey.name
+            
+            guard let categoryColour = UIColor(hexString: categorey.color) else {fatalError()}
+            
+            cell.backgroundColor = categoryColour
+            cell.textLabel?.textColor = ContrastColorOf(categoryColour, returnFlat: true)
+            
+            
         }
         
         return cell

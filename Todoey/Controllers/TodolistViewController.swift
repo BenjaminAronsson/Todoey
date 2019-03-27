@@ -33,27 +33,36 @@ class TodolistViewController: SwipeTableViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         
+        self.title = selectedCategory?.name
+        guard let colourHex = selectedCategory?.color else {fatalError()}
         
-        guard let navbar = navigationController?.navigationBar else {
-            fatalError("Navbar error")
+        updateNavbar(withHexCode: colourHex)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        updateNavbar(withHexCode: "1D9BF6")
+    }
+    
+    
+    //MARK: - navbar setup
+    
+    func updateNavbar(withHexCode colourHexCode : String) {
+        
+        guard let navbar = navigationController?.navigationBar else {fatalError("Navbar does not exist")}
+        
+        guard let navbarColour = UIColor(hexString: colourHexCode) else {fatalError()}
+        
+        navbar.barTintColor = navbarColour
+        navbar.tintColor = ContrastColorOf(navbarColour, returnFlat: true)
+        
+        searchBAr.barTintColor = navbarColour
+        
+        if #available(iOS 11.0, *) {
+            navbar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : ContrastColorOf(navbarColour, returnFlat: true) ]
+        } else {
+            // Fallback on earlier versions
         }
         
-        if let colourHex = selectedCategory?.color {
-            if let navbarColour = UIColor(hexString: colourHex) {
-                navbar.barTintColor = navbarColour
-                navbar.tintColor = ContrastColorOf(navbarColour, returnFlat: true)
-
-                self.title = selectedCategory!.name
-                searchBAr.barTintColor = navbarColour
-                
-                if #available(iOS 11.0, *) {
-                    navbar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : ContrastColorOf(navbarColour, returnFlat: true) ]
-                } else {
-                    // Fallback on earlier versions
-                }
-            }
-            
-        }
     }
     
     
